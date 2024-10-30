@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador de Imágenes con Pixabay</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            width: 80%;
+            max-width: 800px;
+            text-align: center;
+        }
+        .search-box {
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            width: 80%;
+            max-width: 400px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .image-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .image-grid img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Buscador de Imágenes con Pixabay</h1>
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Ingresa una palabra clave">
+            <button onclick="buscarImagenes()">Buscar Imágenes</button>
+        </div>
+        <div id="errorMessage" class="error-message"></div>
+        <div class="image-grid" id="imageGrid"></div>
+    </div>
+
+    <script>
+        const API_KEY = '46798241-0499ac0066547af7cdd8c6d65';
+
+        async function buscarImagenes() {
+            const palabraClave = document.getElementById("searchInput").value.trim();
+            const errorMessage = document.getElementById("errorMessage");
+            const imageGrid = document.getElementById("imageGrid");
+            
+            // Limpiar mensajes e imágenes anteriores
+            errorMessage.textContent = '';
+            imageGrid.innerHTML = '';
+
+            if (!palabraClave) {
+                errorMessage.textContent = "Por favor, ingresa una palabra clave.";
+                return;
+            }
+
+            const url = `https://pixabay.com/api/?key=${API_KEY}&q=${encodeURIComponent(palabraClave)}&image_type=photo&per_page=8`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.totalHits > 0) {
+                    data.hits.forEach(imagen => {
+                        const img = document.createElement("img");
+                        img.src = imagen.webformatURL;
+                        img.alt = palabraClave;
+                        imageGrid.appendChild(img);
+                    });
+                } else {
+                    errorMessage.textContent = "No se encontraron imágenes para tu búsqueda.";
+                }
+            } catch (error) {
+                errorMessage.textContent = "Ocurrió un error al realizar la búsqueda. Inténtalo nuevamente.";
+                console.error("Error al obtener las imágenes:", error);
+            }
+        }
+    </script>
+</body>
+</html>
